@@ -15,7 +15,7 @@ export function getUnitGroups(
   subject: string,
   studentGrade: '中1' | '中2' | '中3',
 ): UnitGroup[] {
-  const grade = subject === '数学' ? studentGrade : '中学'
+  const grade = subject === '数学' || subject === '英語' ? studentGrade : '中学'
   const data = forestaData.subjects.find(
     s => s.subject === subject && s.grade === grade,
   )

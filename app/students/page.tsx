@@ -48,6 +48,7 @@ export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
   const [records, setRecords] = useState<StudyRecord[]>([])
   const [loadingRecords, setLoadingRecords] = useState(false)
+  const [teacherMap, setTeacherMap] = useState<Record<string, string>>({})
 
   useEffect(() => {
     const stored = localStorage.getItem('yesta_teacher')
@@ -63,7 +64,24 @@ export default function StudentsPage() {
       .order('grade')
       .order('name')
       .then(({ data }) => setStudents((data ?? []) as Student[]))
+    supabase
+      .from('itoshima_teachers')
+      .select('id, name')
+      .then(({ data }) => {
+        const map: Record<string, string> = {}
+        for (const t of data ?? []) map[t.id] = t.name
+        setTeacherMap(map)
+      })
   }, [teacher])
+
+  useEffect(() => {
+    if (students.length === 0) return
+    const sid = new URLSearchParams(window.location.search).get('studentId')
+    if (!sid) return
+    const s = students.find(s => s.id === sid)
+    if (s) setSelectedStudent(s)
+    window.history.replaceState(null, '', '/students')
+  }, [students])
 
   const fetchRecords = useCallback(async () => {
     if (!selectedStudent) { setRecords([]); return }
@@ -194,6 +212,11 @@ export default function StudentsPage() {
                             <span className="font-semibold text-indigo-600">コメント：</span>{rec.teacher_comment}
                           </div>
                         )}
+                        {rec.teacher_id && teacherMap[rec.teacher_id] && (
+                          <div className="text-xs text-gray-400 mt-1.5 text-right">
+                            {teacherMap[rec.teacher_id]} 先生
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -207,11 +230,23 @@ export default function StudentsPage() {
       {/* Bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
         <div className="flex max-w-lg mx-auto">
-          <Link href="/study" className={`flex-1 py-3 text-center text-sm font-semibold transition-colors ${pathname === '/study' ? 'text-indigo-600 border-t-2 border-indigo-600' : 'text-gray-400'}`}>
-            入力
+          <Link
+            href="/study"
+            className={`flex-1 py-2 flex flex-col items-center gap-0.5 transition-colors ${
+              pathname === '/study' ? 'text-indigo-600 border-t-2 border-indigo-600' : 'text-gray-400'
+            }`}
+          >
+            <span className="text-lg leading-none">📝</span>
+            <span className="text-xs font-semibold">今日の入力</span>
           </Link>
-          <Link href="/students" className={`flex-1 py-3 text-center text-sm font-semibold transition-colors ${pathname === '/students' ? 'text-indigo-600 border-t-2 border-indigo-600' : 'text-gray-400'}`}>
-            生徒別
+          <Link
+            href="/students"
+            className={`flex-1 py-2 flex flex-col items-center gap-0.5 transition-colors ${
+              pathname === '/students' ? 'text-indigo-600 border-t-2 border-indigo-600' : 'text-gray-400'
+            }`}
+          >
+            <span className="text-lg leading-none">📅</span>
+            <span className="text-xs font-semibold">生徒の履歴</span>
           </Link>
         </div>
       </nav>

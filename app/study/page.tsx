@@ -525,12 +525,20 @@ export default function StudyPage() {
                     <span className="text-base font-bold text-gray-800">{group.student.name}</span>
                   </div>
                   {!showForm && (
-                    <button
-                      onClick={() => startAddForStudent(group.student.id)}
-                      className="text-xs text-indigo-600 border border-indigo-200 rounded-lg px-2.5 py-1 hover:bg-indigo-50 transition-colors"
-                    >
-                      ＋ 単元を追加
-                    </button>
+                    <div className="flex gap-1.5">
+                      <Link
+                        href={`/students?studentId=${group.student.id}`}
+                        className="text-xs text-gray-500 border border-gray-200 rounded-lg px-2.5 py-1 hover:bg-gray-50 transition-colors"
+                      >
+                        履歴 →
+                      </Link>
+                      <button
+                        onClick={() => startAddForStudent(group.student.id)}
+                        className="text-xs text-indigo-600 border border-indigo-200 rounded-lg px-2.5 py-1 hover:bg-indigo-50 transition-colors"
+                      >
+                        ＋ 単元を追加
+                      </button>
+                    </div>
                   )}
                 </div>
                 <div className="divide-y divide-gray-50">
@@ -595,11 +603,23 @@ export default function StudyPage() {
       {/* Bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
         <div className="flex max-w-lg mx-auto">
-          <Link href="/study" className={`flex-1 py-3 text-center text-sm font-semibold transition-colors ${pathname === '/study' ? 'text-indigo-600 border-t-2 border-indigo-600' : 'text-gray-400'}`}>
-            入力
+          <Link
+            href="/study"
+            className={`flex-1 py-2 flex flex-col items-center gap-0.5 transition-colors ${
+              pathname === '/study' ? 'text-indigo-600 border-t-2 border-indigo-600' : 'text-gray-400'
+            }`}
+          >
+            <span className="text-lg leading-none">📝</span>
+            <span className="text-xs font-semibold">今日の入力</span>
           </Link>
-          <Link href="/students" className={`flex-1 py-3 text-center text-sm font-semibold transition-colors ${pathname === '/students' ? 'text-indigo-600 border-t-2 border-indigo-600' : 'text-gray-400'}`}>
-            生徒別
+          <Link
+            href="/students"
+            className={`flex-1 py-2 flex flex-col items-center gap-0.5 transition-colors ${
+              pathname === '/students' ? 'text-indigo-600 border-t-2 border-indigo-600' : 'text-gray-400'
+            }`}
+          >
+            <span className="text-lg leading-none">📅</span>
+            <span className="text-xs font-semibold">生徒の履歴</span>
           </Link>
         </div>
       </nav>

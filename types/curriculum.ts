@@ -16,19 +16,19 @@ type UnitFields = {
   pre_step?: UnitItem[]
 }
 
-/** 数学は学年別（中1 / 中2 / 中3）に独立したデータを持つ */
-export type MathSubjectData = UnitFields & {
-  subject: '数学'
+/** 数学・英語は学年別（中1 / 中2 / 中3）に独立したデータを持つ */
+export type PerGradeSubjectData = UnitFields & {
+  subject: '数学' | '英語'
   grade: '中1' | '中2' | '中3'
 }
 
-/** 英語・国語・社会・理科は全学年共通（"中学"）*/
+/** 国語・社会・理科は全学年共通（"中学"）*/
 export type AllGradeSubjectData = UnitFields & {
-  subject: '国語' | '社会' | '理科' | '英語'
+  subject: '国語' | '社会' | '理科'
   grade: '中学'
 }
 
-export type SubjectData = MathSubjectData | AllGradeSubjectData
+export type SubjectData = PerGradeSubjectData | AllGradeSubjectData
 
 export type SubjectName = SubjectData['subject']
 export type GradeName = SubjectData['grade']
