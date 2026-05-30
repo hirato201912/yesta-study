@@ -5,15 +5,24 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import type { LoggedInTeacher, Student, StudyRecord } from '@/types'
 
+const EIGO_LAB_SUBJECT = 'えいごスタートラボ'
+
 const SUBJECT_COLORS: Record<string, string> = {
   英語: 'bg-red-100 text-red-700',
   数学: 'bg-orange-100 text-orange-700',
   理科: 'bg-green-100 text-green-700',
   社会: 'bg-blue-100 text-blue-700',
   国語: 'bg-purple-100 text-purple-700',
+  [EIGO_LAB_SUBJECT]: 'bg-[#FFF0F7] text-[#A0266A]',
 }
 
 const GRADE_COLORS: Record<string, string> = {
+  '小1': 'bg-[#FFF0F7] text-[#A0266A]',
+  '小2': 'bg-[#FFF0F7] text-[#A0266A]',
+  '小3': 'bg-[#FFF0F7] text-[#A0266A]',
+  '小4': 'bg-[#FFF0F7] text-[#A0266A]',
+  '小5': 'bg-[#FFF0F7] text-[#A0266A]',
+  '小6': 'bg-[#FFF0F7] text-[#A0266A]',
   '中1': 'bg-emerald-100 text-emerald-700',
   '中2': 'bg-sky-100 text-sky-700',
   '中3': 'bg-violet-100 text-violet-700',
@@ -26,6 +35,7 @@ const COMPREHENSION_BADGE: Record<string, string> = {
 }
 
 const SLOT_TIMES: Record<string, string> = {
+  '①': '17:05〜',
   '②': '18:10〜',
   '③': '19:05〜',
   '④': '19:55〜',
@@ -102,7 +112,7 @@ export default function StudentsPage() {
 
   if (!teacher) return null
 
-  const grades = ['中3', '中2', '中1'] as const
+  const grades = ['中3', '中2', '中1', '小6', '小5', '小4', '小3', '小2', '小1'] as const
 
   // Group records by date
   const groupedByDate = records.reduce<Record<string, StudyRecord[]>>((acc, rec) => {
@@ -189,7 +199,9 @@ export default function StudentsPage() {
                     {formatDateDisplay(date)}
                   </div>
                   <div className="flex flex-col gap-2">
-                    {groupedByDate[date].map(rec => (
+                    {groupedByDate[date].map(rec => {
+                      const isEigoRec = rec.subject === EIGO_LAB_SUBJECT
+                      return (
                       <div key={rec.id} className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3">
                         <div className="flex items-center gap-2 mb-1.5">
                           <span className="text-sm font-semibold text-gray-500">
@@ -199,8 +211,8 @@ export default function StudentsPage() {
                             {rec.subject}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <div className="text-sm font-medium text-gray-800">{rec.unit}</div>
+                        <div className={isEigoRec ? 'mb-1' : 'flex items-center gap-2 mb-1'}>
+                          <div className={`text-sm font-medium text-gray-800 ${isEigoRec ? 'whitespace-pre-wrap leading-relaxed' : ''}`}>{rec.unit}</div>
                           {rec.comprehension && (
                             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${COMPREHENSION_BADGE[rec.comprehension] ?? 'bg-gray-100 text-gray-600'}`}>
                               {rec.comprehension}
@@ -218,7 +230,8 @@ export default function StudentsPage() {
                           </div>
                         )}
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               ))}

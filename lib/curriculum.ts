@@ -13,8 +13,9 @@ export function isSubjectAvailable(subject: string): boolean {
 
 export function getUnitGroups(
   subject: string,
-  studentGrade: '中1' | '中2' | '中3',
+  studentGrade: '小1' | '小2' | '小3' | '小4' | '小5' | '小6' | '中1' | '中2' | '中3',
 ): UnitGroup[] {
+  if (studentGrade.startsWith('小')) return []
   const grade = subject === '数学' || subject === '英語' ? studentGrade : '中学'
   const data = forestaData.subjects.find(
     s => s.subject === subject && s.grade === grade,

@@ -9,7 +9,7 @@ export type LoggedInTeacher = {
 export type Student = {
   id: string
   name: string
-  grade: '中1' | '中2' | '中3'
+  grade: '小1' | '小2' | '小3' | '小4' | '小5' | '小6' | '中1' | '中2' | '中3'
 }
 
 export type StudyRecord = {

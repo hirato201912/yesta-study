@@ -1,0 +1,319 @@
+{
+  "categories": [
+    {
+      "name": "あいさつ",
+      "words": [
+        { "en": "hello", "ja": "こんにちは" },
+        { "en": "hi", "ja": "やあ" },
+        { "en": "good morning", "ja": "おはよう" },
+        { "en": "good afternoon", "ja": "こんにちは（昼）" },
+        { "en": "good evening", "ja": "こんばんは" },
+        { "en": "good night", "ja": "おやすみ" },
+        { "en": "thank you", "ja": "ありがとう" },
+        { "en": "you're welcome", "ja": "どういたしまして" },
+        { "en": "goodbye", "ja": "さようなら" },
+        { "en": "see you", "ja": "またね" },
+        { "en": "sorry", "ja": "ごめんなさい" },
+        { "en": "excuse me", "ja": "すみません" },
+        { "en": "yes", "ja": "はい" },
+        { "en": "no", "ja": "いいえ" },
+        { "en": "OK", "ja": "わかった" }
+      ]
+    },
+    {
+      "name": "色",
+      "words": [
+        { "en": "red", "ja": "赤" },
+        { "en": "blue", "ja": "青" },
+        { "en": "green", "ja": "緑" },
+        { "en": "yellow", "ja": "黄色" },
+        { "en": "black", "ja": "黒" },
+        { "en": "white", "ja": "白" },
+        { "en": "pink", "ja": "ピンク" },
+        { "en": "orange", "ja": "オレンジ" },
+        { "en": "purple", "ja": "紫" },
+        { "en": "brown", "ja": "茶色" },
+        { "en": "gray", "ja": "灰色" },
+        { "en": "gold", "ja": "金色" },
+        { "en": "silver", "ja": "銀色" }
+      ]
+    },
+    {
+      "name": "数字",
+      "words": [
+        { "en": "one", "ja": "1" },
+        { "en": "two", "ja": "2" },
+        { "en": "three", "ja": "3" },
+        { "en": "four", "ja": "4" },
+        { "en": "five", "ja": "5" },
+        { "en": "six", "ja": "6" },
+        { "en": "seven", "ja": "7" },
+        { "en": "eight", "ja": "8" },
+        { "en": "nine", "ja": "9" },
+        { "en": "ten", "ja": "10" },
+        { "en": "eleven", "ja": "11" },
+        { "en": "twelve", "ja": "12" },
+        { "en": "thirteen", "ja": "13" },
+        { "en": "fourteen", "ja": "14" },
+        { "en": "fifteen", "ja": "15" },
+        { "en": "sixteen", "ja": "16" },
+        { "en": "seventeen", "ja": "17" },
+        { "en": "eighteen", "ja": "18" },
+        { "en": "nineteen", "ja": "19" },
+        { "en": "twenty", "ja": "20" }
+      ]
+    },
+    {
+      "name": "曜日",
+      "words": [
+        { "en": "Monday", "ja": "月曜日" },
+        { "en": "Tuesday", "ja": "火曜日" },
+        { "en": "Wednesday", "ja": "水曜日" },
+        { "en": "Thursday", "ja": "木曜日" },
+        { "en": "Friday", "ja": "金曜日" },
+        { "en": "Saturday", "ja": "土曜日" },
+        { "en": "Sunday", "ja": "日曜日" }
+      ]
+    },
+    {
+      "name": "月",
+      "words": [
+        { "en": "January", "ja": "1月" },
+        { "en": "February", "ja": "2月" },
+        { "en": "March", "ja": "3月" },
+        { "en": "April", "ja": "4月" },
+        { "en": "May", "ja": "5月" },
+        { "en": "June", "ja": "6月" },
+        { "en": "July", "ja": "7月" },
+        { "en": "August", "ja": "8月" },
+        { "en": "September", "ja": "9月" },
+        { "en": "October", "ja": "10月" },
+        { "en": "November", "ja": "11月" },
+        { "en": "December", "ja": "12月" }
+      ]
+    },
+    {
+      "name": "天気・季節",
+      "words": [
+        { "en": "sunny", "ja": "晴れ" },
+        { "en": "rainy", "ja": "雨" },
+        { "en": "cloudy", "ja": "くもり" },
+        { "en": "snowy", "ja": "雪" },
+        { "en": "windy", "ja": "風が強い" },
+        { "en": "spring", "ja": "春" },
+        { "en": "summer", "ja": "夏" },
+        { "en": "fall", "ja": "秋" },
+        { "en": "winter", "ja": "冬" },
+        { "en": "weather", "ja": "天気" }
+      ]
+    },
+    {
+      "name": "家族・人",
+      "words": [
+        { "en": "father", "ja": "お父さん" },
+        { "en": "mother", "ja": "お母さん" },
+        { "en": "brother", "ja": "兄弟" },
+        { "en": "sister", "ja": "姉妹" },
+        { "en": "grandfather", "ja": "おじいさん" },
+        { "en": "grandmother", "ja": "おばあさん" },
+        { "en": "baby", "ja": "赤ちゃん" },
+        { "en": "family", "ja": "家族" },
+        { "en": "friend", "ja": "友達" },
+        { "en": "boy", "ja": "男の子" },
+        { "en": "girl", "ja": "女の子" },
+        { "en": "teacher", "ja": "先生" }
+      ]
+    },
+    {
+      "name": "体",
+      "words": [
+        { "en": "head", "ja": "頭" },
+        { "en": "hair", "ja": "髪" },
+        { "en": "face", "ja": "顔" },
+        { "en": "eye", "ja": "目" },
+        { "en": "ear", "ja": "耳" },
+        { "en": "nose", "ja": "鼻" },
+        { "en": "mouth", "ja": "口" },
+        { "en": "tooth", "ja": "歯" },
+        { "en": "hand", "ja": "手" },
+        { "en": "foot", "ja": "足（足首から下）" },
+        { "en": "leg", "ja": "脚" },
+        { "en": "arm", "ja": "腕" },
+        { "en": "finger", "ja": "指" }
+      ]
+    },
+    {
+      "name": "動物",
+      "words": [
+        { "en": "dog", "ja": "犬" },
+        { "en": "cat", "ja": "猫" },
+        { "en": "bird", "ja": "鳥" },
+        { "en": "fish", "ja": "魚" },
+        { "en": "rabbit", "ja": "うさぎ" },
+        { "en": "lion", "ja": "ライオン" },
+        { "en": "tiger", "ja": "トラ" },
+        { "en": "elephant", "ja": "ゾウ" },
+        { "en": "monkey", "ja": "サル" },
+        { "en": "panda", "ja": "パンダ" },
+        { "en": "bear", "ja": "クマ" },
+        { "en": "mouse", "ja": "ネズミ" },
+        { "en": "horse", "ja": "馬" },
+        { "en": "cow", "ja": "牛" },
+        { "en": "pig", "ja": "ぶた" },
+        { "en": "sheep", "ja": "羊" },
+        { "en": "chicken", "ja": "ニワトリ" },
+        { "en": "duck", "ja": "アヒル" },
+        { "en": "frog", "ja": "カエル" },
+        { "en": "snake", "ja": "ヘビ" }
+      ]
+    },
+    {
+      "name": "食べ物・飲み物",
+      "words": [
+        { "en": "bread", "ja": "パン" },
+        { "en": "rice", "ja": "ごはん" },
+        { "en": "egg", "ja": "たまご" },
+        { "en": "milk", "ja": "牛乳" },
+        { "en": "water", "ja": "水" },
+        { "en": "juice", "ja": "ジュース" },
+        { "en": "tea", "ja": "お茶" },
+        { "en": "coffee", "ja": "コーヒー" },
+        { "en": "soup", "ja": "スープ" },
+        { "en": "pizza", "ja": "ピザ" },
+        { "en": "cake", "ja": "ケーキ" },
+        { "en": "ice cream", "ja": "アイスクリーム" },
+        { "en": "candy", "ja": "あめ" },
+        { "en": "chocolate", "ja": "チョコレート" },
+        { "en": "hamburger", "ja": "ハンバーガー" }
+      ]
+    },
+    {
+      "name": "果物",
+      "words": [
+        { "en": "apple", "ja": "りんご" },
+        { "en": "banana", "ja": "バナナ" },
+        { "en": "orange", "ja": "オレンジ" },
+        { "en": "grape", "ja": "ぶどう" },
+        { "en": "strawberry", "ja": "いちご" },
+        { "en": "peach", "ja": "もも" },
+        { "en": "lemon", "ja": "レモン" },
+        { "en": "watermelon", "ja": "スイカ" },
+        { "en": "pineapple", "ja": "パイナップル" },
+        { "en": "cherry", "ja": "さくらんぼ" }
+      ]
+    },
+    {
+      "name": "野菜",
+      "words": [
+        { "en": "tomato", "ja": "トマト" },
+        { "en": "potato", "ja": "じゃがいも" },
+        { "en": "carrot", "ja": "にんじん" },
+        { "en": "onion", "ja": "玉ねぎ" },
+        { "en": "cucumber", "ja": "きゅうり" },
+        { "en": "corn", "ja": "とうもろこし" },
+        { "en": "cabbage", "ja": "キャベツ" },
+        { "en": "mushroom", "ja": "きのこ" }
+      ]
+    },
+    {
+      "name": "学校・文房具",
+      "words": [
+        { "en": "book", "ja": "本" },
+        { "en": "notebook", "ja": "ノート" },
+        { "en": "pencil", "ja": "えんぴつ" },
+        { "en": "eraser", "ja": "消しゴム" },
+        { "en": "pen", "ja": "ペン" },
+        { "en": "ruler", "ja": "定規" },
+        { "en": "desk", "ja": "机" },
+        { "en": "chair", "ja": "いす" },
+        { "en": "bag", "ja": "かばん" },
+        { "en": "school", "ja": "学校" },
+        { "en": "classroom", "ja": "教室" },
+        { "en": "library", "ja": "図書室" }
+      ]
+    },
+    {
+      "name": "家・場所",
+      "words": [
+        { "en": "house", "ja": "家" },
+        { "en": "room", "ja": "部屋" },
+        { "en": "kitchen", "ja": "台所" },
+        { "en": "bedroom", "ja": "寝室" },
+        { "en": "bathroom", "ja": "お風呂・トイレ" },
+        { "en": "park", "ja": "公園" },
+        { "en": "station", "ja": "駅" },
+        { "en": "shop", "ja": "お店" },
+        { "en": "hospital", "ja": "病院" },
+        { "en": "zoo", "ja": "動物園" },
+        { "en": "restaurant", "ja": "レストラン" },
+        { "en": "museum", "ja": "博物館" }
+      ]
+    },
+    {
+      "name": "動詞",
+      "words": [
+        { "en": "go", "ja": "行く" },
+        { "en": "come", "ja": "来る" },
+        { "en": "eat", "ja": "食べる" },
+        { "en": "drink", "ja": "飲む" },
+        { "en": "see", "ja": "見る" },
+        { "en": "look", "ja": "見る・見える" },
+        { "en": "like", "ja": "好き" },
+        { "en": "want", "ja": "ほしい" },
+        { "en": "have", "ja": "持っている" },
+        { "en": "play", "ja": "遊ぶ・する" },
+        { "en": "run", "ja": "走る" },
+        { "en": "jump", "ja": "跳ぶ" },
+        { "en": "sit", "ja": "座る" },
+        { "en": "stand", "ja": "立つ" },
+        { "en": "sing", "ja": "歌う" }
+      ]
+    },
+    {
+      "name": "形容詞",
+      "words": [
+        { "en": "big", "ja": "大きい" },
+        { "en": "small", "ja": "小さい" },
+        { "en": "hot", "ja": "暑い・熱い" },
+        { "en": "cold", "ja": "寒い・冷たい" },
+        { "en": "happy", "ja": "うれしい" },
+        { "en": "sad", "ja": "悲しい" },
+        { "en": "good", "ja": "よい" },
+        { "en": "bad", "ja": "わるい" },
+        { "en": "new", "ja": "新しい" },
+        { "en": "old", "ja": "古い・年とった" },
+        { "en": "tall", "ja": "背が高い" },
+        { "en": "short", "ja": "短い・背が低い" },
+        { "en": "long", "ja": "長い" },
+        { "en": "fast", "ja": "速い" },
+        { "en": "slow", "ja": "おそい" }
+      ]
+    },
+    {
+      "name": "乗り物",
+      "words": [
+        { "en": "car", "ja": "車" },
+        { "en": "bus", "ja": "バス" },
+        { "en": "train", "ja": "電車" },
+        { "en": "bike", "ja": "自転車" },
+        { "en": "airplane", "ja": "飛行機" },
+        { "en": "ship", "ja": "船" },
+        { "en": "taxi", "ja": "タクシー" },
+        { "en": "truck", "ja": "トラック" }
+      ]
+    },
+    {
+      "name": "おもちゃ・遊び",
+      "words": [
+        { "en": "ball", "ja": "ボール" },
+        { "en": "doll", "ja": "人形" },
+        { "en": "game", "ja": "ゲーム" },
+        { "en": "robot", "ja": "ロボット" },
+        { "en": "kite", "ja": "たこ" },
+        { "en": "toy", "ja": "おもちゃ" },
+        { "en": "puzzle", "ja": "パズル" },
+        { "en": "block", "ja": "つみき" }
+      ]
+    }
+  ]
+}
