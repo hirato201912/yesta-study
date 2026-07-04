@@ -3,18 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
-import type { LoggedInTeacher, Student, StudyRecord } from '@/types'
-
-const EIGO_LAB_SUBJECT = 'えいごスタートラボ'
-
-const SUBJECT_COLORS: Record<string, string> = {
-  英語: 'bg-red-100 text-red-700',
-  数学: 'bg-orange-100 text-orange-700',
-  理科: 'bg-green-100 text-green-700',
-  社会: 'bg-blue-100 text-blue-700',
-  国語: 'bg-purple-100 text-purple-700',
-  [EIGO_LAB_SUBJECT]: 'bg-[#FFF0F7] text-[#A0266A]',
-}
+import type { LoggedInTeacher, Student, AbcQuestRecord } from '@/types'
 
 const GRADE_COLORS: Record<string, string> = {
   '小1': 'bg-[#FFF0F7] text-[#A0266A]',
@@ -28,37 +17,43 @@ const GRADE_COLORS: Record<string, string> = {
   '中3': 'bg-violet-100 text-violet-700',
 }
 
-const COMPREHENSION_BADGE: Record<string, string> = {
-  'わからない':      'bg-red-100 text-red-700',
-  'なんとなくわかる': 'bg-amber-100 text-amber-700',
-  'よくわかった':    'bg-green-100 text-green-700',
+const MODE_LABELS: Record<AbcQuestRecord['mode'], { label: string; badge: string }> = {
+  matching: { label: 'ペアさがし', badge: 'bg-green-100 text-green-700' },
+  quiz: { label: 'クイズ', badge: 'bg-pink-100 text-pink-700' },
 }
 
-const SLOT_TIMES: Record<string, string> = {
-  '①': '17:05〜',
-  '②': '18:10〜',
-  '③': '19:05〜',
-  '④': '19:55〜',
-  '⑤': '20:45〜',
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+
+type LetterStat = { correct: number; wrong: number }
+
+// 文字ごとの定着度: 緑=定着 / 黄=練習中 / 赤=要復習 / 灰=未着手
+function letterCellStyle(stat: LetterStat | undefined): string {
+  if (!stat || stat.correct + stat.wrong === 0) return 'bg-gray-100 text-gray-300'
+  const rate = stat.correct / (stat.correct + stat.wrong)
+  if (rate >= 0.8) return 'bg-green-100 text-green-700'
+  if (rate >= 0.5) return 'bg-amber-100 text-amber-700'
+  return 'bg-red-100 text-red-700'
 }
 
-function formatDateDisplay(dateStr: string): string {
-  const d = new Date(dateStr + 'T00:00:00')
+function formatDateDisplay(d: Date): string {
   const m = d.getMonth() + 1
   const day = d.getDate()
   const dow = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()]
   return `${m}月${day}日（${dow}）`
 }
 
-export default function StudentsPage() {
+function formatTime(d: Date): string {
+  return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+export default function AbcQuestPage() {
   const router = useRouter()
   const pathname = usePathname()
   const [teacher, setTeacher] = useState<LoggedInTeacher | null>(null)
   const [students, setStudents] = useState<Student[]>([])
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
-  const [records, setRecords] = useState<StudyRecord[]>([])
+  const [records, setRecords] = useState<AbcQuestRecord[]>([])
   const [loadingRecords, setLoadingRecords] = useState(false)
-  const [teacherMap, setTeacherMap] = useState<Record<string, string>>({})
 
   useEffect(() => {
     const stored = localStorage.getItem('yesta_teacher')
@@ -74,35 +69,18 @@ export default function StudentsPage() {
       .order('grade')
       .order('name')
       .then(({ data }) => setStudents((data ?? []) as Student[]))
-    supabase
-      .from('itoshima_teachers')
-      .select('id, name')
-      .then(({ data }) => {
-        const map: Record<string, string> = {}
-        for (const t of data ?? []) map[t.id] = t.name
-        setTeacherMap(map)
-      })
   }, [teacher])
-
-  useEffect(() => {
-    if (students.length === 0) return
-    const sid = new URLSearchParams(window.location.search).get('studentId')
-    if (!sid) return
-    const s = students.find(s => s.id === sid)
-    if (s) setSelectedStudent(s)
-    window.history.replaceState(null, '', '/students')
-  }, [students])
 
   const fetchRecords = useCallback(async () => {
     if (!selectedStudent) { setRecords([]); return }
     setLoadingRecords(true)
     const { data } = await supabase
-      .from('yesta_study_records')
+      .from('abc_quest_records')
       .select('*')
       .eq('student_id', selectedStudent.id)
-      .order('date', { ascending: false })
-      .order('time_slot', { ascending: true })
-    setRecords((data ?? []) as StudyRecord[])
+      .order('played_at', { ascending: false })
+      .limit(200)
+    setRecords((data ?? []) as AbcQuestRecord[])
     setLoadingRecords(false)
   }, [selectedStudent])
 
@@ -114,20 +92,47 @@ export default function StudentsPage() {
 
   const grades = ['中3', '中2', '中1', '小6', '小5', '小4', '小3', '小2', '小1'] as const
 
-  // Group records by date
-  const groupedByDate = records.reduce<Record<string, StudyRecord[]>>((acc, rec) => {
-    if (!acc[rec.date]) acc[rec.date] = []
-    acc[rec.date].push(rec)
+  // 集計
+  const weekAgo = new Date()
+  weekAgo.setDate(weekAgo.getDate() - 7)
+  const playsThisWeek = records.filter(r => new Date(r.played_at) >= weekAgo).length
+  const bestLevel = records.reduce((max, r) => Math.max(max, r.level ?? 0), 0)
+  const bestStars = records.reduce((max, r) => Math.max(max, r.stars ?? 0), 0)
+
+  // 文字別の正解/ミス集計
+  const letterStats: Record<string, LetterStat> = {}
+  for (const rec of records) {
+    for (const l of rec.correct_letters ?? []) {
+      letterStats[l] = letterStats[l] ?? { correct: 0, wrong: 0 }
+      letterStats[l].correct++
+    }
+    for (const l of rec.wrong_letters ?? []) {
+      letterStats[l] = letterStats[l] ?? { correct: 0, wrong: 0 }
+      letterStats[l].wrong++
+    }
+  }
+  const weakLetters = ALPHABET.filter(l => {
+    const s = letterStats[l]
+    return s && s.correct + s.wrong > 0 && s.correct / (s.correct + s.wrong) < 0.5
+  })
+
+  // 日付ごとにグループ化
+  const groupedByDate = records.reduce<Record<string, AbcQuestRecord[]>>((acc, rec) => {
+    const key = new Date(rec.played_at).toDateString()
+    if (!acc[key]) acc[key] = []
+    acc[key].push(rec)
     return acc
   }, {})
-  const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a))
+  const sortedDates = Object.keys(groupedByDate).sort(
+    (a, b) => new Date(b).getTime() - new Date(a).getTime(),
+  )
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-indigo-600 text-white px-4 py-3 flex items-center justify-between">
         <div>
-          <div className="text-lg font-bold leading-tight">イエスタ 自習管理</div>
+          <div className="text-lg font-bold leading-tight">ABCクエスト 取り組み状況</div>
           <div className="text-xs text-indigo-200">{teacher.name} 先生</div>
         </div>
         <button
@@ -178,58 +183,84 @@ export default function StudentsPage() {
           <div className="text-center py-12 text-gray-400 text-sm">読み込み中…</div>
         ) : records.length === 0 ? (
           <div className="text-center py-16 text-gray-400 text-sm">
-            {selectedStudent.name} さんの記録はまだありません
+            {selectedStudent.name} さんのプレイ記録はまだありません
           </div>
         ) : (
           <>
-            {/* Summary header */}
-            <div className="flex items-center gap-2 mb-4">
+            {/* Summary */}
+            <div className="flex items-center gap-2 mb-3">
               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${GRADE_COLORS[selectedStudent.grade] ?? 'bg-gray-100 text-gray-600'}`}>
                 {selectedStudent.grade}
               </span>
               <span className="text-base font-bold text-gray-800">{selectedStudent.name}</span>
               <span className="text-sm text-gray-400 ml-auto">{records.length}件</span>
             </div>
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-3 py-2 text-center">
+                <div className="text-xl font-bold text-indigo-600">{playsThisWeek}</div>
+                <div className="text-xs text-gray-500">今週のプレイ</div>
+              </div>
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-3 py-2 text-center">
+                <div className="text-xl font-bold text-green-600">Lv.{bestLevel}</div>
+                <div className="text-xs text-gray-500">ペアさがし最高</div>
+              </div>
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-3 py-2 text-center">
+                <div className="text-xl font-bold text-pink-600">{bestStars}</div>
+                <div className="text-xs text-gray-500">クイズ最高スター</div>
+              </div>
+            </div>
+
+            {/* 文字別の定着マップ */}
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-bold text-gray-700">アルファベット別の定着状況</span>
+                <span className="text-xs text-gray-400">
+                  <span className="inline-block w-2.5 h-2.5 rounded-sm bg-green-100 border border-green-300 mr-1" />定着
+                  <span className="inline-block w-2.5 h-2.5 rounded-sm bg-amber-100 border border-amber-300 ml-2 mr-1" />練習中
+                  <span className="inline-block w-2.5 h-2.5 rounded-sm bg-red-100 border border-red-300 ml-2 mr-1" />要復習
+                </span>
+              </div>
+              <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(13, minmax(0, 1fr))' }}>
+                {ALPHABET.map(l => (
+                  <div
+                    key={l}
+                    className={`aspect-square rounded-md flex items-center justify-center text-xs font-bold ${letterCellStyle(letterStats[l])}`}
+                    title={letterStats[l] ? `${l}: 正解${letterStats[l].correct} / ミス${letterStats[l].wrong}` : `${l}: 未着手`}
+                  >
+                    {l}
+                  </div>
+                ))}
+              </div>
+              {weakLetters.length > 0 && (
+                <div className="mt-2 text-xs text-red-600 font-medium">
+                  要復習: {weakLetters.join('・')}
+                </div>
+              )}
+            </div>
 
             {/* Records grouped by date */}
             <div className="flex flex-col gap-4">
-              {sortedDates.map(date => (
-                <div key={date}>
+              {sortedDates.map(dateKey => (
+                <div key={dateKey}>
                   <div className="text-xs font-semibold text-gray-500 mb-2 px-1">
-                    {formatDateDisplay(date)}
+                    {formatDateDisplay(new Date(dateKey))}
                   </div>
                   <div className="flex flex-col gap-2">
-                    {groupedByDate[date].map(rec => {
-                      const isEigoRec = rec.subject === EIGO_LAB_SUBJECT
+                    {groupedByDate[dateKey].map(rec => {
+                      const d = new Date(rec.played_at)
+                      const modeInfo = MODE_LABELS[rec.mode]
                       return (
-                      <div key={rec.id} className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className="text-sm font-semibold text-gray-500">
-                            {rec.time_slot}{SLOT_TIMES[rec.time_slot] ? `　${SLOT_TIMES[rec.time_slot]}` : ''}
+                        <div key={rec.id} className="bg-white rounded-xl border border-gray-100 shadow-sm px-4 py-3 flex items-center gap-3">
+                          <span className="text-sm font-semibold text-gray-500 w-12">{formatTime(d)}</span>
+                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${modeInfo.badge}`}>
+                            {modeInfo.label}
                           </span>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${SUBJECT_COLORS[rec.subject] ?? 'bg-gray-100 text-gray-600'}`}>
-                            {rec.subject}
+                          <span className="text-sm font-medium text-gray-800 ml-auto">
+                            {rec.mode === 'matching'
+                              ? `レベル ${rec.level ?? '-'} クリア`
+                              : `スター ${rec.stars ?? 0} / ${rec.total ?? '-'}`}
                           </span>
                         </div>
-                        <div className={isEigoRec ? 'mb-1' : 'flex items-center gap-2 mb-1'}>
-                          <div className={`text-sm font-medium text-gray-800 ${isEigoRec ? 'whitespace-pre-wrap leading-relaxed' : ''}`}>{rec.unit}</div>
-                          {rec.comprehension && (
-                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${COMPREHENSION_BADGE[rec.comprehension] ?? 'bg-gray-100 text-gray-600'}`}>
-                              {rec.comprehension}
-                            </span>
-                          )}
-                        </div>
-                        {rec.teacher_comment && (
-                          <div className="text-sm text-gray-600 bg-indigo-50 rounded-lg px-3 py-1.5">
-                            <span className="font-semibold text-indigo-600">コメント：</span>{rec.teacher_comment}
-                          </div>
-                        )}
-                        {rec.teacher_id && teacherMap[rec.teacher_id] && (
-                          <div className="text-xs text-gray-400 mt-1.5 text-right">
-                            {teacherMap[rec.teacher_id]} 先生
-                          </div>
-                        )}
-                      </div>
                       )
                     })}
                   </div>

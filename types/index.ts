@@ -28,3 +28,16 @@ export type StudyRecord = {
 export type StudyRecordWithStudent = StudyRecord & {
   student: Student
 }
+
+export type AbcQuestRecord = {
+  id: string
+  student_id: string
+  mode: 'matching' | 'quiz'
+  level: number | null
+  stars: number | null
+  total: number | null
+  correct_letters: string[] | null
+  wrong_letters: string[] | null
+  correct_words: string[] | null
+  played_at: string
+}

@@ -1020,6 +1020,15 @@ export default function StudyPage() {
             <span className="text-lg leading-none">📅</span>
             <span className="text-xs font-semibold">生徒の履歴</span>
           </Link>
+          <Link
+            href="/abc-quest"
+            className={`flex-1 py-2 flex flex-col items-center gap-0.5 transition-colors ${
+              pathname === '/abc-quest' ? 'text-indigo-600 border-t-2 border-indigo-600' : 'text-gray-400'
+            }`}
+          >
+            <span className="text-lg leading-none">🔤</span>
+            <span className="text-xs font-semibold">ABCクエスト</span>
+          </Link>
         </div>
       </nav>
 
