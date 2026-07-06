@@ -59,6 +59,13 @@ export default function StudentsPage() {
   const [records, setRecords] = useState<StudyRecord[]>([])
   const [loadingRecords, setLoadingRecords] = useState(false)
   const [teacherMap, setTeacherMap] = useState<Record<string, string>>({})
+  const [modalMode, setModalMode] = useState<'add' | 'edit' | null>(null)
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null)
+  const [newName, setNewName] = useState('')
+  const [newGrade, setNewGrade] = useState<Student['grade'] | ''>('')
+  const [addSaving, setAddSaving] = useState(false)
+  const [addError, setAddError] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   useEffect(() => {
     const stored = localStorage.getItem('yesta_teacher')
@@ -66,14 +73,19 @@ export default function StudentsPage() {
     setTeacher(JSON.parse(stored))
   }, [router])
 
-  useEffect(() => {
-    if (!teacher) return
-    supabase
+  const fetchStudents = useCallback(async () => {
+    const { data } = await supabase
       .from('yesta_students')
       .select('id, name, grade')
+      .eq('active', true)
       .order('grade')
       .order('name')
-      .then(({ data }) => setStudents((data ?? []) as Student[]))
+    setStudents((data ?? []) as Student[])
+  }, [])
+
+  useEffect(() => {
+    if (!teacher) return
+    fetchStudents()
     supabase
       .from('itoshima_teachers')
       .select('id, name')
@@ -82,7 +94,7 @@ export default function StudentsPage() {
         for (const t of data ?? []) map[t.id] = t.name
         setTeacherMap(map)
       })
-  }, [teacher])
+  }, [teacher, fetchStudents])
 
   useEffect(() => {
     if (students.length === 0) return
@@ -109,6 +121,75 @@ export default function StudentsPage() {
   useEffect(() => {
     fetchRecords()
   }, [fetchRecords])
+
+  function openAddModal() {
+    setEditingStudent(null)
+    setNewName('')
+    setNewGrade('')
+    setAddError('')
+    setConfirmDelete(false)
+    setModalMode('add')
+  }
+
+  function openEditModal(s: Student) {
+    setEditingStudent(s)
+    setNewName(s.name)
+    setNewGrade(s.grade)
+    setAddError('')
+    setConfirmDelete(false)
+    setModalMode('edit')
+  }
+
+  function closeModal() {
+    setModalMode(null)
+    setEditingStudent(null)
+    setConfirmDelete(false)
+  }
+
+  async function handleSaveStudent() {
+    const name = newName.trim()
+    if (!name || !newGrade) return
+    setAddSaving(true)
+    setAddError('')
+    if (modalMode === 'edit' && editingStudent) {
+      const { data, error } = await supabase
+        .from('yesta_students')
+        .update({ name, grade: newGrade })
+        .eq('id', editingStudent.id)
+        .select('id, name, grade')
+        .single()
+      setAddSaving(false)
+      if (error) { setAddError(error.message); return }
+      await fetchStudents()
+      if (data) setSelectedStudent(data as Student)
+    } else {
+      const { data, error } = await supabase
+        .from('yesta_students')
+        .insert({ name, grade: newGrade })
+        .select('id, name, grade')
+        .single()
+      setAddSaving(false)
+      if (error) { setAddError(error.message); return }
+      await fetchStudents()
+      if (data) setSelectedStudent(data as Student)
+    }
+    closeModal()
+  }
+
+  async function handleDeleteStudent() {
+    if (!editingStudent) return
+    setAddSaving(true)
+    setAddError('')
+    const { error } = await supabase
+      .from('yesta_students')
+      .update({ active: false })
+      .eq('id', editingStudent.id)
+    setAddSaving(false)
+    if (error) { setAddError(error.message); return }
+    await fetchStudents()
+    setSelectedStudent(prev => (prev?.id === editingStudent.id ? null : prev))
+    closeModal()
+  }
 
   if (!teacher) return null
 
@@ -140,6 +221,14 @@ export default function StudentsPage() {
 
       {/* Student selector */}
       <div className="bg-white border-b px-4 py-3">
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={openAddModal}
+            className="text-xs font-semibold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            ＋ 生徒を追加
+          </button>
+        </div>
         {grades.map(grade => {
           const gradeStudents = students.filter(s => s.grade === grade)
           if (gradeStudents.length === 0) return null
@@ -170,6 +259,23 @@ export default function StudentsPage() {
 
       {/* Records area */}
       <div className="px-4 py-4 max-w-lg mx-auto pb-24">
+        {selectedStudent && (
+          <div className="flex items-center gap-2 mb-4">
+            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${GRADE_COLORS[selectedStudent.grade] ?? 'bg-gray-100 text-gray-600'}`}>
+              {selectedStudent.grade}
+            </span>
+            <span className="text-base font-bold text-gray-800">{selectedStudent.name}</span>
+            <button
+              onClick={() => openEditModal(selectedStudent)}
+              className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 border border-indigo-200 hover:bg-indigo-50 px-2 py-1 rounded-lg transition-colors"
+            >
+              ✏️ 編集
+            </button>
+            {records.length > 0 && (
+              <span className="text-sm text-gray-400 ml-auto">{records.length}件</span>
+            )}
+          </div>
+        )}
         {!selectedStudent ? (
           <div className="text-center py-16 text-gray-400 text-sm">
             生徒を選択してください
@@ -182,15 +288,6 @@ export default function StudentsPage() {
           </div>
         ) : (
           <>
-            {/* Summary header */}
-            <div className="flex items-center gap-2 mb-4">
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${GRADE_COLORS[selectedStudent.grade] ?? 'bg-gray-100 text-gray-600'}`}>
-                {selectedStudent.grade}
-              </span>
-              <span className="text-base font-bold text-gray-800">{selectedStudent.name}</span>
-              <span className="text-sm text-gray-400 ml-auto">{records.length}件</span>
-            </div>
-
             {/* Records grouped by date */}
             <div className="flex flex-col gap-4">
               {sortedDates.map(date => (
@@ -239,6 +336,100 @@ export default function StudentsPage() {
           </>
         )}
       </div>
+
+      {/* Add / edit student modal */}
+      {modalMode && (
+        <div className="fixed inset-0 z-20 flex items-end sm:items-center justify-center bg-black/40 px-4">
+          <div className="bg-white w-full max-w-sm rounded-2xl shadow-xl p-5 mb-4 sm:mb-0">
+            <div className="text-base font-bold text-gray-800 mb-4">
+              {modalMode === 'edit' ? '生徒を編集' : '生徒を追加'}
+            </div>
+
+            <label className="block text-xs font-semibold text-gray-500 mb-1">名前</label>
+            <input
+              type="text"
+              value={newName}
+              onChange={e => setNewName(e.target.value)}
+              placeholder="例：山田 太郎"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+
+            <label className="block text-xs font-semibold text-gray-500 mb-1.5">学年</label>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {grades.map(g => (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => setNewGrade(g)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
+                    newGrade === g
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+
+            {addError && <div className="text-xs text-red-600 mb-3">{addError}</div>}
+
+            <div className="flex gap-2">
+              <button
+                onClick={closeModal}
+                disabled={addSaving}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleSaveStudent}
+                disabled={addSaving || !newName.trim() || !newGrade}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors disabled:opacity-50"
+              >
+                {addSaving ? '保存中…' : modalMode === 'edit' ? '保存する' : '追加する'}
+              </button>
+            </div>
+
+            {modalMode === 'edit' && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                {!confirmDelete ? (
+                  <button
+                    onClick={() => setConfirmDelete(true)}
+                    disabled={addSaving}
+                    className="w-full py-2 rounded-lg text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                  >
+                    この生徒を退塾（一覧から非表示）
+                  </button>
+                ) : (
+                  <div>
+                    <div className="text-xs text-gray-600 mb-2 text-center">
+                      {editingStudent?.name} さんを一覧から非表示にします。<br />
+                      （学習履歴・ABCクエスト記録は残ります）
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setConfirmDelete(false)}
+                        disabled={addSaving}
+                        className="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+                      >
+                        やめる
+                      </button>
+                      <button
+                        onClick={handleDeleteStudent}
+                        disabled={addSaving}
+                        className="flex-1 py-2 rounded-lg text-sm font-semibold text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50"
+                      >
+                        {addSaving ? '処理中…' : '非表示にする'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-10">
