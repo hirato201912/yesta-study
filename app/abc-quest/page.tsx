@@ -20,6 +20,8 @@ const GRADE_COLORS: Record<string, string> = {
 const MODE_LABELS: Record<AbcQuestRecord['mode'], { label: string; badge: string }> = {
   matching: { label: 'ペアさがし', badge: 'bg-green-100 text-green-700' },
   quiz: { label: 'クイズ', badge: 'bg-pink-100 text-pink-700' },
+  listening: { label: 'きいてえらぶ', badge: 'bg-sky-100 text-sky-700' },
+  ordering: { label: 'ならべかえ', badge: 'bg-amber-100 text-amber-700' },
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
@@ -256,7 +258,7 @@ export default function AbcQuestPage() {
                             {modeInfo.label}
                           </span>
                           <span className="text-sm font-medium text-gray-800 ml-auto">
-                            {rec.mode === 'matching'
+                            {rec.mode === 'matching' || rec.mode === 'ordering'
                               ? `レベル ${rec.level ?? '-'} クリア`
                               : `スター ${rec.stars ?? 0} / ${rec.total ?? '-'}`}
                           </span>

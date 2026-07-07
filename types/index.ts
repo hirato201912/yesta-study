@@ -32,7 +32,7 @@ export type StudyRecordWithStudent = StudyRecord & {
 export type AbcQuestRecord = {
   id: string
   student_id: string
-  mode: 'matching' | 'quiz'
+  mode: 'matching' | 'quiz' | 'listening' | 'ordering'
   level: number | null
   stars: number | null
   total: number | null
